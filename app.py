@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 # --- 1. PAGE CONFIG ---
-st.set_page_config(page_title="YT Pulse AI", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="YT Pulse AI", page_icon="⚡", layout="wide")
 
 # --- 2. LOAD CSS ---
 def local_css(file_name):
@@ -20,17 +20,19 @@ def local_css(file_name):
 
 local_css("style.css")
 
-# --- 3. LOAD AI MODEL (CACHED) ---
+# --- 3. LOAD AI MODEL (LITE VERSION - DistilBERT) ---
 @st.cache_resource
 def load_model():
-    # Using RoBERTa model trained on Tweets (similar to YT comments)
-    MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
+    # Using DistilBERT (Multilingual). It is much smaller (~270MB) and faster than RoBERTa.
+    # Perfect for Free Cloud Hosting.
+    MODEL = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+    
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL)
     return tokenizer, model
 
 # Download/Load Model
-with st.spinner("🧠 Waking up the AI Brain... (First load takes 30s)"):
+with st.spinner("⚡ Loading Light-Speed AI Model... (This is fast!)"):
     tokenizer, model = load_model()
 
 # --- 4. HELPER FUNCTIONS ---
@@ -45,7 +47,6 @@ def get_comments(video_id, api_key, target_limit):
         all_comments = []
         next_page_token = None
         
-        # Progress Bar Setup
         progress_text = "Fetching comments from YouTube..."
         my_bar = st.progress(0, text=progress_text)
         
@@ -61,28 +62,27 @@ def get_comments(video_id, api_key, target_limit):
                 all_comments.append([c['authorDisplayName'], c['textDisplay']])
                 if len(all_comments) >= target_limit: break
             
-            # Update Progress Bar
+            # Update Progress
             current = len(all_comments)
             my_bar.progress(min(current / target_limit, 1.0), text=f"Fetched {current} / {target_limit} comments...")
             
             if 'nextPageToken' in response:
                 next_page_token = response['nextPageToken']
-                time.sleep(0.1) # Safety delay
+                time.sleep(0.1) 
             else:
                 break 
                 
-        my_bar.empty() # Remove bar when done
+        my_bar.empty()
         return pd.DataFrame(all_comments, columns=['Author', 'Comment'])
     except Exception as e:
         st.error(f"API Error: {e}")
         return None
 
-def analyze_with_roberta(df):
+def analyze_with_model(df):
     res = []
     total = len(df)
     
-    # Progress Bar for AI Analysis
-    bar = st.progress(0, text="AI is reading & understanding comments...")
+    bar = st.progress(0, text="AI is analyzing sentiments...")
     
     for i, text in enumerate(df['Comment']):
         try:
@@ -95,15 +95,18 @@ def analyze_with_roberta(df):
             # 3. Softmax
             scores = softmax(scores)
             
-            # RoBERTa Labels: 0=Negative, 1=Neutral, 2=Positive
-            neg, neu, pos = scores[0], scores[1], scores[2]
+            # Model specific mapping (lxyuan/distilbert):
+            # 0: Positive, 1: Neutral, 2: Negative
+            pos_score = scores[0]
+            neu_score = scores[1]
+            neg_score = scores[2]
             
-            if pos > neg and pos > neu:
+            if pos_score > neg_score and pos_score > neu_score:
                 label = "Positive"
-                final_score = pos
-            elif neg > pos and neg > neu:
+                final_score = pos_score
+            elif neg_score > pos_score and neg_score > neu_score:
                 label = "Negative"
-                final_score = -neg # Negative score for visualization
+                final_score = -neg_score # Negative sign for visualization
             else:
                 label = "Neutral"
                 final_score = 0.0
@@ -112,8 +115,8 @@ def analyze_with_roberta(df):
         except:
             res.append({'Score': 0, 'Sentiment': "Neutral"})
             
-        # Update Progress every 10 comments
-        if i % 5 == 0:
+        # Update Progress bar less frequently to save speed
+        if i % 10 == 0:
             bar.progress(min((i+1)/total, 1.0), text=f"Analyzing {i+1}/{total}...")
             
     bar.empty()
@@ -127,11 +130,10 @@ def highlight_sentiment(val):
     elif val == 'Neutral': color = '#AAAAAA'
     return f'color: {color}; font-weight: {weight}'
 
-# --- 5. SIDEBAR (AUTO KEY DETECTION) ---
+# --- 5. SIDEBAR (AUTO KEY) ---
 with st.sidebar:
     st.header("🔐 Settings")
     
-    # Check if key exists in Streamlit Secrets
     if 'YOUTUBE_API_KEY' in st.secrets:
         st.success("✅ API Key Loaded from Server")
         api_key = st.secrets['YOUTUBE_API_KEY']
@@ -140,12 +142,13 @@ with st.sidebar:
         st.caption("Enter key manually if not configured on server.")
 
     st.markdown("---")
-    st.header("📊 AI Depth")
-    limit = st.slider("Comment Limit:", 20, 200, 50, step=10)
-    st.caption(f"Analyzing {limit} comments using Deep Learning.")
+    st.header("📊 AI Limit")
+    # Default limit 50 rakha hai taaki fast chale
+    limit = st.slider("Comment Limit:", 20, 500, 50, step=10)
+    st.caption(f"Analyzing {limit} comments.")
 
 # --- 6. MAIN UI ---
-st.markdown("<h1 style='text-align: center; color: white;'>🧠 YouTube Pulse AI (RoBERTa)</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>⚡ YouTube Pulse AI (Fast)</h1>", unsafe_allow_html=True)
 st.write("") 
 
 col1, col2 = st.columns([4, 1])
@@ -155,20 +158,20 @@ with col2:
     st.markdown("<div style='margin-top: 29px;'></div>", unsafe_allow_html=True)
     btn = st.button("ANALYZE 🚀", use_container_width=True)
 
-# --- 7. EXECUTION LOGIC ---
+# --- 7. EXECUTION ---
 if btn:
     if not api_key:
-        st.error("⚠️ API Key not found. Please add it in Settings or Secrets.")
+        st.error("⚠️ API Key missing.")
     elif not url:
-        st.warning("⚠️ Please enter a YouTube URL.")
+        st.warning("⚠️ Please enter a URL.")
     else:
         vid_id = get_video_id(url)
         if vid_id:
             df = get_comments(vid_id, api_key, target_limit=limit)
             if df is not None and not df.empty:
                 
-                # Run AI Analysis
-                df_new = analyze_with_roberta(df)
+                # Run Lite AI Analysis
+                df_new = analyze_with_model(df)
                 
                 # --- METRICS ---
                 st.markdown("### 📊 Analysis Results")
@@ -180,11 +183,11 @@ if btn:
                 m1.metric("Total", total)
                 m2.metric("Positive", pos, f"{(pos/total)*100:.0f}%")
                 m3.metric("Negative", neg, f"-{(neg/total)*100:.0f}%", delta_color="inverse")
-                avg_score = df_new['Score'].mean()
+                avg = df_new['Score'].mean()
                 mood = "😐 Neutral"
-                if avg_score > 0.1: mood = "😁 Happy"
-                elif avg_score < -0.1: mood = "😡 Angry"
-                m4.metric("Overall Mood", mood)
+                if avg > 0.1: mood = "😁 Happy"
+                elif avg < -0.1: mood = "😡 Angry"
+                m4.metric("Mood", mood)
                 
                 st.markdown("---")
 
@@ -213,12 +216,12 @@ if btn:
                     height=500,
                     column_config={
                         "Sentiment": st.column_config.TextColumn("Sentiment", width="medium"),
-                        "Score": st.column_config.NumberColumn("Confidence", format="%.4f", width="small"),
+                        "Score": st.column_config.NumberColumn("Conf.", format="%.2f", width="small"),
                         "Comment": st.column_config.TextColumn("Comment Text", width="large"),
                     },
                     hide_index=True
                 )
             else:
-                st.warning("No comments found or API limit reached.")
+                st.warning("No comments found.")
         else:
             st.error("Invalid YouTube URL.")
