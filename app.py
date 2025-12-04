@@ -148,7 +148,7 @@ with st.sidebar:
     st.caption(f"Analyzing {limit} comments.")
 
 # --- 6. MAIN UI ---
-st.markdown("<h1 style='text-align: center; color: white;'>⚡ YOUTUBE SENTIMENT ANALYZER</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>⚡ YOUTUBE COMMENTS SENTIMENT ANALYZER</h1>", unsafe_allow_html=True)
 st.write("") 
 
 col1, col2 = st.columns([4, 1])
@@ -225,6 +225,7 @@ if btn:
                 st.warning("No comments found.")
         else:
             st.error("Invalid YouTube URL.")
+
 
 
 
