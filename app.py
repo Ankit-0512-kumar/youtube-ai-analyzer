@@ -132,7 +132,7 @@ def highlight_sentiment(val):
 
 # --- 5. SIDEBAR (AUTO KEY) ---
 with st.sidebar:
-    st.header("🔐 Settings")
+    st.header("🔐 API KEY")
     
     if 'YOUTUBE_API_KEY' in st.secrets:
         st.success("✅ API Key Loaded from Server")
@@ -225,4 +225,5 @@ if btn:
                 st.warning("No comments found.")
         else:
             st.error("Invalid YouTube URL.")
+
 
