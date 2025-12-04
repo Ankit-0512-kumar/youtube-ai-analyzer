@@ -1,0 +1,122 @@
+/* --- 1. GLOBAL SETTINGS --- */
+.stApp {
+    background-color: #0E1117; /* Deep Black */
+    color: #FFFFFF;
+}
+
+/* Hide Streamlit Header */
+header { visibility: hidden; }
+div[data-testid="stDecoration"] { visibility: hidden; }
+
+/* --- 2. SIDEBAR SPECIFIC FIXES (YEH AAPKE LIYE HAI) --- */
+
+/* Sidebar Background */
+[data-testid="stSidebar"] {
+    background-color: #121212;
+    border-right: 1px solid #333;
+}
+
+/* Sidebar Headings (Settings, Analysis Depth) */
+[data-testid="stSidebar"] h1, 
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3 {
+    color: #FFFFFF !important; /* Pure White */
+    font-weight: bold !important;
+}
+
+/* Sidebar Labels (Paste API Key, Select Limit) */
+[data-testid="stSidebar"] label {
+    color: #E0E0E0 !important; /* Almost White */
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Sidebar Small Text (Caption/Notes) */
+[data-testid="stSidebar"] div[data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] small {
+    color: #BBBBBB !important; /* Light Grey */
+}
+
+/* Input Fields inside Sidebar */
+[data-testid="stSidebar"] input {
+    color: #FFFFFF !important;
+    background-color: #262730 !important;
+    border: 1px solid #444;
+}
+
+/* --- 3. METRICS CARDS (BIG & BOLD) --- */
+div[data-testid="metric-container"] {
+    background-color: #1C1C1C;
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+div[data-testid="stMetricLabel"] {
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    color: #FFFFFF !important;
+    text-transform: capitalize;
+}
+
+div[data-testid="stMetricValue"] {
+    font-size: 36px !important;
+    font-weight: 700 !important;
+    color: #00D4FF !important;
+}
+
+div[data-testid="stMetricDelta"] {
+    font-size: 16px !important;
+    font-weight: bold !important;
+}
+
+/* --- 4. MAIN INPUT FIELDS --- */
+.stTextInput input {
+    background-color: #1E1E1E !important;
+    color: #FFFFFF !important;
+    font-size: 16px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.stTextInput > div > div > div:focus-within {
+    border-color: #00D4FF !important;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
+/* Main Page Labels */
+.stTextInput label {
+    color: #FFFFFF !important;
+    font-size: 18px !important;
+    font-weight: bold;
+}
+
+/* --- 5. BUTTONS --- */
+.stButton > button {
+    background: linear-gradient(90deg, #00C6FF 0%, #0072FF 100%);
+    color: white;
+    font-size: 18px; 
+    font-weight: bold;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.stButton > button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+}
+
+/* --- 6. TABLE STYLING --- */
+th {
+    font-size: 18px !important; 
+    color: #FFFFFF !important;
+    background-color: #262730 !important;
+}
+td {
+    font-size: 16px !important;
+}
