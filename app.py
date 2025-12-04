@@ -142,7 +142,7 @@ with st.sidebar:
         st.caption("Enter key manually if not configured on server.")
 
     st.markdown("---")
-    st.header("📊 AI Limit")
+    st.header("📊 comment Limit")
     # Default limit 50 rakha hai taaki fast chale
     limit = st.slider("Comment Limit:", 20, 500, 50, step=10)
     st.caption(f"Analyzing {limit} comments.")
@@ -225,5 +225,6 @@ if btn:
                 st.warning("No comments found.")
         else:
             st.error("Invalid YouTube URL.")
+
 
 
